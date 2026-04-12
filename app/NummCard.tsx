@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import {useState, useCallback, useRef, useId, useEffect} from 'react'
+import {createPortal} from 'react-dom'
 
 type Props = {
   id: string
@@ -11,6 +12,7 @@ type Props = {
   dotColor: string
   imageUrl?: string
   tryckdatum?: string
+  landDelay?: number   // ms efter mount → auto-trigga en kort landing-glitch
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -65,7 +67,7 @@ function burstScale(t: number): number {
   return s
 }
 
-export function NummCard({id, year, utgava, status, dotColor, imageUrl, tryckdatum}: Props) {
+export function NummCard({id, year, utgava, status, dotColor, imageUrl, tryckdatum, landDelay}: Props) {
   const [pos, setPos]       = useState({x: -200, y: -200})
   const [phase, setPhase]   = useState<'hidden' | 'in' | 'out'>('hidden')
   const [enterKey, setEnterKey] = useState(0)
@@ -81,10 +83,12 @@ export function NummCard({id, year, utgava, status, dotColor, imageUrl, tryckdat
   const dispRef  = useRef<SVGFEDisplacementMapElement>(null)
   const animRaf  = useRef<number | null>(null)
   const outroTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const idleTimer  = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => () => {
     if (animRaf.current !== null) cancelAnimationFrame(animRaf.current)
     if (outroTimer.current !== null) clearTimeout(outroTimer.current)
+    if (idleTimer.current !== null) clearTimeout(idleTimer.current)
   }, [])
 
   // ── Turbulence helpers ──────────────────────────────────────────────────
@@ -138,6 +142,66 @@ export function NummCard({id, year, utgava, status, dotColor, imageUrl, tryckdat
     animRaf.current = requestAnimationFrame(frame)
   }, [resetTurbDom])
 
+  // ── Idle-glitch: slumpstyrd periodisk glitch medan musen vilar (utgiven) ─
+  const scheduleIdleGlitch = useCallback((thisHover: number) => {
+    if (idleTimer.current !== null) clearTimeout(idleTimer.current)
+    const delay = 2000 + Math.random() * 3000   // 2–5 s
+    idleTimer.current = setTimeout(() => {
+      if (hoverId.current !== thisHover) return
+      // Starta turbulens + överlager — bilden stannar i färg
+      runTurb(false, thisHover)
+      setGc({baseFilter: 'grayscale(0)', redAnim: 'none', blueAnim: 'none', saAnim: 'none', sbAnim: 'none'})
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (hoverId.current !== thisHover) return
+        setGc({
+          baseFilter: 'grayscale(0)',
+          redAnim:  'bs-glitch-red 0.9s ease-out forwards',
+          blueAnim: 'bs-glitch-blue 0.9s ease-out forwards',
+          saAnim:   'bs-glitch-sa 0.9s ease-out forwards',
+          sbAnim:   'bs-glitch-sb 0.9s ease-out forwards',
+        })
+      }))
+      // Återställ overlay och schemalägg nästa
+      idleTimer.current = setTimeout(() => {
+        if (hoverId.current !== thisHover) return
+        setGc({baseFilter: 'grayscale(0)'})
+        scheduleIdleGlitch(thisHover)
+      }, 1000)
+    }, delay)
+  }, [runTurb])
+
+  // ── Auto-glitch vid landing ────────────────────────────────────────────
+  useEffect(() => {
+    if (landDelay === undefined) return
+    let resetTimer: ReturnType<typeof setTimeout> | null = null
+
+    const t = setTimeout(() => {
+      const thisHover = ++hoverId.current
+      runTurb(false, thisHover)
+
+      setGc({baseFilter: 'grayscale(1)', baseAnim: 'none', redAnim: 'none', blueAnim: 'none', saAnim: 'none', sbAnim: 'none'})
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (hoverId.current !== thisHover) return
+        setGc({
+          baseAnim: 'bs-glitch-l-base 1.1s ease-out forwards',
+          redAnim:  'bs-glitch-red    1.1s ease-out forwards',
+          blueAnim: 'bs-glitch-blue   1.1s ease-out forwards',
+          saAnim:   'bs-glitch-sa     1.1s ease-out forwards',
+          sbAnim:   'bs-glitch-sb     1.1s ease-out forwards',
+        })
+      }))
+
+      resetTimer = setTimeout(() => {
+        if (hoverId.current === thisHover) setGc(GC_IDLE)
+      }, 1300)
+    }, landDelay)
+
+    return () => {
+      clearTimeout(t)
+      if (resetTimer !== null) clearTimeout(resetTimer)
+    }
+  }, [landDelay, runTurb])
+
   // ── Phase helpers ───────────────────────────────────────────────────────
   const setPhaseSync = (p: 'hidden' | 'in' | 'out') => {
     phaseRef.current = p
@@ -183,6 +247,8 @@ export function NummCard({id, year, utgava, status, dotColor, imageUrl, tryckdat
 
   const handleMouseLeave = useCallback(() => {
     const outroHover = ++hoverId.current   // new ID for outro RAF; also cancels double-RAF
+    // Stoppa idle-timern direkt vid leave
+    if (idleTimer.current !== null) { clearTimeout(idleTimer.current); idleTimer.current = null }
     setPhaseSync('out')
 
     const wasCo = wasColorized.current
@@ -217,19 +283,23 @@ export function NummCard({id, year, utgava, status, dotColor, imageUrl, tryckdat
     if (phaseRef.current === 'out') setPhaseSync('hidden')
   }, [])
 
-  // Reveal animation ends — hold image in color
+  // Reveal animation ends — hold image in color, starta idle-glitch-cykel
   const handleBaseAnimEnd = useCallback(() => {
     if (status === 'utgiven') {
       wasColorized.current = true
       setGc({baseFilter: 'grayscale(0)'})
+      // Starta idle-cykeln bara om musen fortfarande är inne
+      if (phaseRef.current === 'in') {
+        scheduleIdleGlitch(hoverId.current)
+      }
     }
-  }, [status])
+  }, [status, scheduleIdleGlitch])
 
   const sliceFilter = status === 'pagaende' ? 'grayscale(1)' : undefined
 
   return (
     <>
-      {phase !== 'hidden' && (
+      {phase !== 'hidden' && createPortal(
         <div
           key={enterKey}
           onAnimationEnd={handleCursorAnimEnd}
@@ -261,7 +331,8 @@ export function NummCard({id, year, utgava, status, dotColor, imageUrl, tryckdat
           <span style={{animation: phase === 'in' ? 'bs-cursor-text 0.18s ease-out 0.32s both' : undefined}}>
             {status === 'utgiven' ? 'Explore' : 'Edit'}
           </span>
-        </div>
+        </div>,
+        document.body,
       )}
 
       <Link
@@ -369,8 +440,8 @@ export function NummCard({id, year, utgava, status, dotColor, imageUrl, tryckdat
             <span style={{display: 'grid', gridTemplateColumns: phase === 'in' ? '1fr' : '0fr', transition: 'grid-template-columns 0.6s cubic-bezier(0.34, 1.3, 0.64, 1)'}}>
               <span style={{overflow: 'hidden'}}>
                 <span style={{
-                  display: 'block', padding: '0 11px', fontSize: 9,
-                  fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', textTransform: 'uppercase',
+                  display: 'flex', alignItems: 'center', padding: '0 11px', paddingTop: 3, fontSize: 9,
+                  height: 20, fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', textTransform: 'uppercase',
                   color: '#090908', whiteSpace: 'nowrap',
                   opacity: phase === 'in' ? undefined : 0,
                   animation: phase === 'in' ? 'bs-cursor-text 0.18s ease-out 0.44s both' : undefined,
