@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #090908;
+  --foreground: #f0ece5;
 }
 
 @theme inline {
@@ -87,5 +87,114 @@ body {
 @keyframes bs-cursor-text {
   0%   { opacity: 0; transform: translateY(6px); }
   100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Glitch base: reveal (grayscale → color) ── */
+@keyframes bs-glitch-r-base {
+  0%    { filter: grayscale(1); }
+  4%    { filter: grayscale(1) brightness(1.1) contrast(1.15); }
+  11%   { filter: grayscale(1); }
+  25%   { filter: grayscale(1); }
+  31%   { filter: grayscale(0.55) saturate(1.8) contrast(1.3); }
+  37%   { filter: grayscale(0.45); }
+  53%   { filter: grayscale(0.08); }
+  60%   { filter: grayscale(0) saturate(1.7) contrast(1.2); }
+  67%   { filter: grayscale(0); }
+  100%  { filter: grayscale(0); }
+}
+
+/* ── Glitch base: loop (stannar gråskala) ── */
+@keyframes bs-glitch-l-base {
+  0%    { filter: grayscale(1); }
+  4%    { filter: grayscale(1) brightness(1.7) contrast(0.6); }
+  11%   { filter: grayscale(1); }
+  25%   { filter: grayscale(1); }
+  31%   { filter: grayscale(1) contrast(2) brightness(0.85); }
+  37%   { filter: grayscale(1); }
+  53%   { filter: grayscale(1); }
+  60%   { filter: grayscale(1) brightness(1.6) contrast(1.25); }
+  67%   { filter: grayscale(1); }
+  100%  { filter: grayscale(1); }
+}
+
+/* ── Glitch: röd kanal, vänster ── */
+@keyframes bs-glitch-red {
+  0%    { opacity: 0; transform: translateX(0); }
+  4%    { opacity: 0.38; transform: translateX(-5px); }
+  11%   { opacity: 0; transform: translateX(0); }
+  25%   { opacity: 0; }
+  31%   { opacity: 0.32; transform: translateX(-4px); }
+  37%   { opacity: 0; transform: translateX(0); }
+  53%   { opacity: 0; }
+  60%   { opacity: 0.28; transform: translateX(-4px); }
+  67%   { opacity: 0; transform: translateX(0); }
+  100%  { opacity: 0; }
+}
+
+/* ── Glitch: blå kanal, höger ── */
+@keyframes bs-glitch-blue {
+  0%    { opacity: 0; transform: translateX(0); }
+  4%    { opacity: 0.38; transform: translateX(5px); }
+  11%   { opacity: 0; transform: translateX(0); }
+  25%   { opacity: 0; }
+  31%   { opacity: 0.32; transform: translateX(4px); }
+  37%   { opacity: 0; transform: translateX(0); }
+  53%   { opacity: 0; }
+  60%   { opacity: 0.28; transform: translateX(4px); }
+  67%   { opacity: 0; transform: translateX(0); }
+  100%  { opacity: 0; }
+}
+
+/* ── Glitch slice A: övre tredjedel, höger ── */
+@keyframes bs-glitch-sa {
+  0%    { opacity: 0; transform: translateX(0); }
+  4%    { opacity: 1; transform: translateX(7px); }
+  8%    { opacity: 1; transform: translateX(-4px); }
+  11%   { opacity: 0; transform: translateX(0); }
+  25%   { opacity: 0; }
+  31%   { opacity: 1; transform: translateX(6px); }
+  36%   { opacity: 0; transform: translateX(0); }
+  53%   { opacity: 0; }
+  60%   { opacity: 1; transform: translateX(6px); }
+  66%   { opacity: 0; transform: translateX(0); }
+  100%  { opacity: 0; }
+}
+
+/* ── Glitch outro: bas, från färg → grå ── */
+@keyframes bs-glitch-outro-c {
+  0%    { filter: grayscale(0) saturate(1.6); }
+  12%   { filter: grayscale(0.25) contrast(1.4); }
+  40%   { filter: grayscale(0.7); }
+  100%  { filter: grayscale(1); }
+}
+
+/* ── Glitch outro: bas, stannar grå (pagaende) ── */
+@keyframes bs-glitch-outro-g {
+  0%    { filter: grayscale(1) brightness(1.35); }
+  55%   { filter: grayscale(1); }
+  100%  { filter: grayscale(1); }
+}
+
+/* ── Glitch outro: overlay-lager (kort blixt, fade till 0) ── */
+@keyframes bs-glitch-outro-ov {
+  0%    { opacity: 0;    transform: translateX(0); }
+  18%   { opacity: 0.35; transform: translateX(4px); }
+  55%   { opacity: 0.15; transform: translateX(-2px); }
+  100%  { opacity: 0;    transform: translateX(0); }
+}
+
+/* ── Glitch slice B: nedre mittenband, vänster ── */
+@keyframes bs-glitch-sb {
+  0%    { opacity: 0; transform: translateX(0); }
+  4%    { opacity: 1; transform: translateX(-6px); }
+  8%    { opacity: 1; transform: translateX(4px); }
+  11%   { opacity: 0; transform: translateX(0); }
+  25%   { opacity: 0; }
+  31%   { opacity: 1; transform: translateX(-5px); }
+  36%   { opacity: 0; transform: translateX(0); }
+  53%   { opacity: 0; }
+  60%   { opacity: 1; transform: translateX(-6px); }
+  66%   { opacity: 0; transform: translateX(0); }
+  100%  { opacity: 0; }
 }
 

@@ -13,10 +13,8 @@ type Nummer = {
   coverImage?: {asset: {url: string}}
 }
 
-function getDotColor(s: string) {
-  if (s === 'utgiven') return '#16a34a'
-  if (s === 'pagaende') return '#b91c1c'
-  return '#d1d5db'
+function getDotColor(_s: string) {
+  return '#f0ece5'
 }
 
 const H1: React.CSSProperties = {
@@ -33,7 +31,7 @@ const PSUB: React.CSSProperties = {
   fontSize: 'clamp(1.3rem, 2.4vw, 2.1rem)',
   fontFamily: 'var(--font-serif)',
   fontWeight: 300,
-  color: '#6b7280',
+  color: 'rgba(255,255,255,0.55)',
   lineHeight: 1.5,
   margin: 0,
 }
@@ -51,7 +49,7 @@ export function PageContent({nummer}: {nummer: Nummer[]}) {
       </div>
 
       {nummer.length === 0 && (
-        <p style={{color: '#9ca3af', textAlign: 'center'}}>Inga nummer finns ännu.</p>
+        <p style={{color: 'rgba(255,255,255,0.45)', textAlign: 'center'}}>Inga nummer finns ännu.</p>
       )}
 
       <div className="bs-grid">

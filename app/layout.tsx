@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="sv" className={`${jetbrainsMono.variable} ${lato.variable} ${anton.variable} antialiased`}>
-      <body style={{margin: 0, padding: 0, background: '#fff', color: '#171717'}}>
+      <body style={{margin: 0, padding: 0, background: '#090908', color: '#f0ece5'}}>
         {children}
       </body>
     </html>
