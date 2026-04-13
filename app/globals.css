@@ -72,6 +72,25 @@ body::after {
   }
 }
 
+/* ── Listsida: responsiv layout ── */
+
+
+/* ── Listsida ── */
+.bs-list-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .bs-list-meta {
+    display: none;
+  }
+  .bs-list-title {
+    grid-column: 1 / -1;
+  }
+}
+
 
 /* ── Intro: bokstav-glitch variant A — tidigt flimmer, lång svans ── */
 @keyframes bs-letter-in-a {
@@ -226,6 +245,41 @@ body::after {
   18%   { opacity: 0.35; transform: translateX(4px); }
   55%   { opacity: 0.15; transform: translateX(-2px); }
   100%  { opacity: 0;    transform: translateX(0); }
+}
+
+/* ── Listrad hover-glitch: vitt → rött ── */
+@keyframes bs-row-glitch-in {
+  0%   { color: #f0ece5; transform: translateX(0);    opacity: 1; }
+  7%   { color: #b91c1c; transform: translateX(-4px); opacity: 0.6; }
+  13%  { color: #f0ece5; transform: translateX(3px);  opacity: 1; }
+  22%  { color: #b91c1c; transform: translateX(0); }
+  29%  { color: #f0ece5; }
+  47%  { color: #b91c1c; }
+  54%  { color: #f0ece5; opacity: 0.8; }
+  68%  { color: #b91c1c; opacity: 1; }
+  100% { color: #b91c1c; transform: translateX(0);    opacity: 1; }
+}
+
+/* ── Listrad hover-glitch: rött → vitt ── */
+@keyframes bs-row-glitch-out {
+  0%   { color: #b91c1c; transform: translateX(0);   opacity: 1; }
+  8%   { color: #f0ece5; transform: translateX(3px); opacity: 0.6; }
+  15%  { color: #b91c1c; transform: translateX(-2px); opacity: 1; }
+  26%  { color: #f0ece5; transform: translateX(0); }
+  34%  { color: #b91c1c; }
+  44%  { color: #f0ece5; }
+  100% { color: #f0ece5; transform: translateX(0);   opacity: 1; }
+}
+
+/* ── Hover-glitch på back-länk: snabb burst på hela texten ── */
+@keyframes bs-link-glitch {
+  0%   { transform: translateX(0);    opacity: 1; }
+  10%  { transform: translateX(-5px); opacity: 0.6; }
+  20%  { transform: translateX(4px);  opacity: 1; }
+  35%  { transform: translateX(-3px); opacity: 0.75; }
+  50%  { transform: translateX(2px);  opacity: 1; }
+  65%  { transform: translateX(-1px); opacity: 0.9; }
+  100% { transform: translateX(0);    opacity: 1; }
 }
 
 /* ── Glitch slice B: nedre mittenband, vänster ── */
